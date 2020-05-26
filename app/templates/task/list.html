@@ -2,7 +2,28 @@
 
 
 {% block container %}
-<h2>Listado de Tareas</h2>
+<div class="inline-block">
+    <h2>Listado de Tareas</h2>
+    <a href="{{url_for('.new_task')}}">Nueva Tarea</a>   
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Titulo</th>
+            <th scope="col">Descripcion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{task.title}}</td>
+            <td>{{task.description}}</td>
+        </tr>   
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock container %}
 
     

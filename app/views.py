@@ -1,9 +1,10 @@
 from flask import Blueprint
 from flask import render_template,request,flash,redirect,url_for
-from .forms import LoginForm,RegisterForm
+from .forms import LoginForm,RegisterForm,TaskForm
 from flask_login import login_user,logout_user,login_required,current_user
 
-from .models import User
+from .models import User,Task
+from .consts import *
 
 from . import login_manager
 #Blueprint-> Permite Aplicaciones Modulables Grandes
@@ -67,4 +68,16 @@ def register():
 @page.route('/tasks')
 @login_required
 def tasks():
-	return render_template('task/list.html',title='Tareas')
+	tasks=current_user.tasks
+	return render_template('task/list.html',title='Tareas',tasks=tasks)
+
+@page.route('/tasks/new',methods=["GET","POST"])
+@login_required
+def new_task():
+	form= TaskForm(request.form)
+	if request.method == 'POST' and form.validate():
+		task= Task.create_element(form.title.data,form.description.data,current_user.id)
+		if task:
+			flash(TASK_GENERATED)	
+
+	return render_template('task/new.html',title='Nueva Tarea', form=form)
