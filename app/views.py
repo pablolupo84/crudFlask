@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask import render_template,request,flash,redirect,url_for
+from flask import render_template,request,flash,redirect,url_for,abort
 from .forms import LoginForm,RegisterForm,TaskForm
 from flask_login import login_user,logout_user,login_required,current_user
 
@@ -81,3 +81,19 @@ def new_task():
 			flash(TASK_GENERATED)	
 
 	return render_template('task/new.html',title='Nueva Tarea', form=form)
+
+@page.route('/tasks/edit/<int:task_id>',methods=["GET","POST"])
+@login_required
+def edit_task(task_id):
+	task=Task.query.get_or_404(task_id)
+	
+	if task.user_id != current_user.id:
+		abort(404)
+
+	form=TaskForm(request.form,obj=task)
+	if request.method == 'POST' and form.validate():
+		task=Task.update_element(task.id,form.title.data,form.description.data)
+		if task:
+			flash(TASK_UPDATED)
+
+	return render_template('task/edit.html',title='Editar Tarea',form=form)
