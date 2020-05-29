@@ -47,7 +47,8 @@ def login():
 		else:
 			flash("Usuario o Password Invalidos","error")
 
-	return render_template('auth/login.html',title='Login',form=form)
+	return render_template('auth/login.html',title='Login',form=form,
+							active='login')
 
 @page.route('/register',methods=["GET","POST"])
 def register():
@@ -63,13 +64,18 @@ def register():
 		flash("Usuario creado exitosamente!")
 		login_user(user)
 		return redirect(url_for('.tasks'))
-	return render_template('/auth/register.html',title='Register',form=form)
+	return render_template('/auth/register.html',title='Register',form=form,
+							active='register')
 
 @page.route('/tasks')
+@page.route('/tasks/<int:page>')
 @login_required
-def tasks():
-	tasks=current_user.tasks
-	return render_template('task/list.html',title='Tareas',tasks=tasks)
+def tasks(page=1,per_page=2):
+	pagination=current_user.tasks.paginate(page=page,per_page=per_page)
+	tasks=pagination.items
+	return render_template('task/list.html',title='Tareas',tasks=tasks,
+							pagination=pagination,page=page,
+							active='tasks')
 
 @page.route('/tasks/new',methods=["GET","POST"])
 @login_required
@@ -80,7 +86,13 @@ def new_task():
 		if task:
 			flash(TASK_GENERATED)	
 
-	return render_template('task/new.html',title='Nueva Tarea', form=form)
+	return render_template('task/new.html',title='Nueva Tarea', form=form,
+							active='new_task')
+
+@page.route('/task/show/<int:task_id>')
+def get_task(task_id):
+	task=Task.query.get_or_404(task_id)
+	return render_template('task/show.html',title='Tarea',task=task)
 
 @page.route('/tasks/edit/<int:task_id>',methods=["GET","POST"])
 @login_required
