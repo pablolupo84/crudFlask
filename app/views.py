@@ -5,6 +5,7 @@ from flask_login import login_user,logout_user,login_required,current_user
 
 from .models import User,Task
 from .consts import *
+from .email import welcome_email
 
 from . import login_manager
 #Blueprint-> Permite Aplicaciones Modulables Grandes
@@ -63,6 +64,7 @@ def register():
 		print(user.id)
 		flash("Usuario creado exitosamente!")
 		login_user(user)
+		welcome_email(user)
 		return redirect(url_for('.tasks'))
 	return render_template('/auth/register.html',title='Register',form=form,
 							active='register')
