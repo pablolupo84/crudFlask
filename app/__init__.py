@@ -15,14 +15,19 @@ login_manager=LoginManager()
 mail=Mail()
 
 from .views import page
-from .models import User
+from .models import User,Task
 
 def create_app(config):
 	app.config.from_object(config)
 	
 	db.init_app(app)
 	csrf.init_app(app)
-	bootstrap.init_app(app)
+
+	if not app.config.get('TEST',False):
+		bootstrap.init_app(app)
+	
+	app.app_context().push()
+
 	login_manager.init_app(app)
 	login_manager.login_view = '.login'
 	login_manager.login_message = 'Es necesario iniciar Sesion'
